@@ -177,6 +177,101 @@ def get_installed_packages():
             installed.add(line.replace("package:", "").strip())
     return installed
 
+def get_third_party_packages():
+    code, out, _ = run_adb(["shell", "pm", "list", "packages", "-3", "--user", "0"])
+    if code != 0:
+        code, out, _ = run_adb(["shell", "pm", "list", "packages", "-3"])
+    pkgs = []
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith("package:"):
+            pkg = line.replace("package:", "").strip()
+            if pkg and pkg != HEADUNIT_PACKAGE:
+                pkgs.append(pkg)
+    return sorted(pkgs)
+
+def debloat_user_apps(device_info):
+    print(f"\n{Colors.BOLD}--- SCANNING OTHER USER-INSTALLED (3RD-PARTY) APPS ---{Colors.ENDC}")
+    print(f"{Colors.CYAN}[*] Fetching non-system apps installed on device...{Colors.ENDC}")
+    user_pkgs = get_third_party_packages()
+
+    if not user_pkgs:
+        print(f"{Colors.GREEN}[✓] No extra user-installed apps found on this device.{Colors.ENDC}")
+        return
+
+    print(f"\nFound {Colors.BOLD}{len(user_pkgs)}{Colors.ENDC} other user-installed apps:")
+    for idx, pkg in enumerate(user_pkgs, 1):
+        print(f"  [{idx:2d}] {pkg}")
+
+    print("\nSelect which apps to remove:")
+    print("  [A] Remove ALL listed user-installed apps (Recommended for dedicated Headunit)")
+    print("  Or enter numbers separated by comma (e.g. '1,3,5')")
+    print("  [0] Skip / Do not remove any")
+
+    sel = input("\nYour selection: ").strip().upper()
+    if sel == "0" or not sel:
+        print("Skipping other apps.")
+        return
+
+    selected_pkgs = []
+    if sel == "A":
+        selected_pkgs = user_pkgs
+    else:
+        for part in sel.split(","):
+            part = part.strip()
+            if part.isdigit():
+                idx = int(part)
+                if 1 <= idx <= len(user_pkgs):
+                    selected_pkgs.append(user_pkgs[idx - 1])
+
+    if not selected_pkgs:
+        print(f"{Colors.WARNING}[!] No valid apps selected.{Colors.ENDC}")
+        return
+
+    print("\nChoose Action Mode:")
+    print("  [1] Disable Packages (Safest & easily reversible)")
+    print("  [2] Uninstall for User 0 (Frees maximum storage & RAM)")
+    m = input("Select mode [1/2] (default: 2): ").strip() or "2"
+    act_type = "disable" if m == "1" else "uninstall"
+
+    confirm = input(f"Are you sure you want to {act_type.upper()} {len(selected_pkgs)} user apps? [y/N]: ").strip().lower()
+    if confirm != "y":
+        print("Cancelled.")
+        return
+
+    succeeded = []
+    print("")
+    for idx, pkg in enumerate(selected_pkgs, 1):
+        if act_type == "disable":
+            code, out, _ = run_adb(["shell", "pm", "disable-user", "--user", "0", pkg])
+            ok = (code == 0 and ("disabled" in out.lower() or "new state" in out.lower()))
+        else:
+            code, out, _ = run_adb(["shell", "pm", "uninstall", "-k", "--user", "0", pkg])
+            ok = (code == 0 and "success" in out.lower())
+
+        if ok:
+            print(f"  [{idx}/{len(selected_pkgs)}] {Colors.GREEN}✔ Removed:{Colors.ENDC} {pkg}")
+            succeeded.append(pkg)
+        else:
+            print(f"  [{idx}/{len(selected_pkgs)}] {Colors.WARNING}✘ Skipped/Failed:{Colors.ENDC} {pkg}")
+
+    if succeeded:
+        os.makedirs(BACKUPS_DIR, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_file = os.path.join(
+            BACKUPS_DIR, f"rollback_userapps_{device_info['model'].replace(' ', '_')}_{timestamp}.json"
+        )
+        backup_data = {
+            "timestamp": timestamp,
+            "device": device_info,
+            "action": act_type,
+            "packages": succeeded,
+        }
+        with open(backup_file, "w", encoding="utf-8") as f:
+            json.dump(backup_data, f, indent=2)
+        print(f"\n{Colors.GREEN}[✓] Successfully cleaned {len(succeeded)} user-installed apps!{Colors.ENDC}")
+        print(f"Rollback log saved to: {Colors.BOLD}{backup_file}{Colors.ENDC}")
+
 def debloat_menu(device_info):
     print_banner()
     print(f"{Colors.BOLD}--- STEP 1: MULTI-BRAND DEBLOATER (NO ROOT) ---{Colors.ENDC}")
@@ -186,10 +281,16 @@ def debloat_menu(device_info):
     for key, (label, _) in BRAND_MAP.items():
         print(f"  [{key}] {label}")
     print("  [A] All Brand Profiles (Universal + All Manufacturers)")
+    print("  [U] Scan & Remove Other User-Installed Apps (3rd-party non-system)")
     print("  [0] Back to Main Menu")
 
-    choice = input("\nYour selection (e.g. 1,2 or A): ").strip().upper()
+    choice = input("\nYour selection (e.g. 1,2 or A or U): ").strip().upper()
     if choice == "0" or not choice:
+        return
+
+    if choice == "U":
+        debloat_user_apps(device_info)
+        input("\nPress Enter to return to Main Menu...")
         return
 
     selected_files = []
@@ -224,6 +325,9 @@ def debloat_menu(device_info):
 
     if not to_process:
         print(f"{Colors.GREEN}[✓] Great news! None of the target bloatware packages are active on this device.{Colors.ENDC}")
+        offer = input(f"\n{Colors.BOLD}Would you like to scan & remove other user-installed (3rd-party) apps instead? [y/N]: {Colors.ENDC}").strip().lower()
+        if offer == "y":
+            debloat_user_apps(device_info)
         input("\nPress Enter to return...")
         return
 
@@ -274,6 +378,10 @@ def debloat_menu(device_info):
         print(f"Rollback log saved to: {Colors.BOLD}{backup_file}{Colors.ENDC}")
     else:
         print(f"\n{Colors.WARNING}[!] No packages could be modified.{Colors.ENDC}")
+
+    offer = input(f"\n{Colors.BOLD}Would you also like to scan & remove other user-installed (3rd-party) apps? [y/N]: {Colors.ENDC}").strip().lower()
+    if offer == "y":
+        debloat_user_apps(device_info)
 
     input("\nPress Enter to return to Main Menu...")
 

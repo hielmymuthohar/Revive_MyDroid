@@ -14,6 +14,7 @@ Got an old 2GB RAM Android phone collecting dust in a drawer? Instead of letting
 ## ✨ Key Features
 
 - **🧹 Multi-Brand Non-Root Debloater:** Curated package lists for **Universal Google Bloat**, **Samsung**, **Xiaomi (MIUI/HyperOS)**, **Oppo/Realme (ColorOS/RealmeUI)**, **Vivo (FuntouchOS)**, and **Asus (ZenUI)**.
+- **🗑️ 3rd-Party & User Apps Cleaner:** Scan and remove any remaining user-installed apps (social media, games, shopping apps) with 1-click batch removal (`[A]`) or selective numbers, complete with timestamped rollback backups.
 - **🛡️ Safe & Reversible (Automatic Rollback):** Choose between `disable-user` or `uninstall --user 0`. Every session saves a timestamped JSON rollback log inside `backups/` so you can restore removed apps anytime with a single click.
 - **⚡ Low-RAM Headunit Tweaks:** Automatically disables UI window/transition animations (`0.0x` or `0.5x`), enables **Stay Awake while charging** (AC/USB/Wireless), disables the lockscreen, and trims system caches.
 - **📱 Auto-Download & Install Open Headunit:** Fetches the latest `.apk` release directly from [`andreknieriem/open-headunit`](https://github.com/andreknieriem/open-headunit) via GitHub API and installs it over ADB.
