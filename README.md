@@ -39,14 +39,33 @@ ReviveMyDroid includes automated presets matching the optimal configuration for 
 
 ## 🚀 Quick Start
 
+### 📱 Phone Preparation (Prerequisites for Both Option A & Option B)
+
+Before running ReviveMyDroid (whether manually or via an AI Agent), configure these essential settings on your old Android phone:
+
+1. **Enable Developer Options:**
+   - Open **Settings** $\to$ **About Phone**.
+   - Tap **Build Number** (or **MIUI Version** on Xiaomi/Redmi) **7 times** until you see *"You are now a developer!"*.
+2. **Enable USB Debugging:**
+   - Go to **Settings** $\to$ **Developer Options** (located under *System* or *Additional Settings*).
+   - Toggle **ON** **USB Debugging**.
+3. **Enable "Install via USB" (Crucial for Xiaomi / MIUI / Oppo / Realme):**
+   - Inside **Developer Options**, toggle **ON** **"Install via USB"** (and *"USB debugging (Security settings)"* if present).
+   - *Why?* Prevents OEM security dialogs from blocking ADB app installation (`INSTALL_FAILED_USER_RESTRICTED`).
+4. **Connect Cable & Authorize PC:**
+   - Connect the phone to your computer using a reliable USB data cable.
+   - When the pop-up appears on the phone screen (*"Allow USB debugging?"*), check **"Always allow from this computer"** and tap **Allow / OK**.
+
+---
+
 ### Option A: Interactive CLI (Manual)
+
 1. **Clone this repository:**
    ```bash
    git clone https://github.com/hielmymuthohar/Revive_MyDroid.git
    cd Revive_MyDroid
    ```
-2. **Connect your old Android phone via USB** (with **USB Debugging** enabled in Developer Options).
-3. **Run the Interactive Tool:**
+2. **Run the Interactive Tool:**
    - **Windows:** Double-click `run_windows.bat` (or run `python revive.py`).
    - **Linux / macOS:** `./run_unix.sh`
 
@@ -54,14 +73,14 @@ ReviveMyDroid includes automated presets matching the optimal configuration for 
 
 ### Option B: Autonomous Setup via AI Agent (Zero-Effort 🤖)
 
-Don't want to type commands or navigate menus yourself? You can command an **AI Coding Agent** (e.g. Antigravity, Claude Code, Cursor Agent, Windsurf) to execute the entire transformation autonomously from start to finish!
+Don't want to type commands or navigate menus yourself? Once the phone is connected with Developer Options, USB Debugging, and "Install via USB" enabled, simply paste the prompt below into your **AI Coding Agent** (e.g. Antigravity, Claude Code, Cursor Agent, Windsurf):
 
 #### 📋 Prompt Template:
 ```text
 Please transform my connected old Android device into a dedicated Android Auto Headunit using this repository:
 https://github.com/hielmymuthohar/Revive_MyDroid
 
-My phone is connected via USB with USB Debugging enabled. Please autonomously perform the entire setup end-to-end:
+My phone is connected via USB with Developer Options, USB Debugging, and "Install via USB" enabled. Please autonomously perform the entire setup end-to-end:
 1. Verify the ADB connection (`adb devices`). If ADB platform-tools are missing on this PC, fetch them locally.
 2. Detect the device brand/model and apply the safe non-root debloater profile to free up RAM.
 3. Apply headunit system tweaks (disable UI animations to 0.0x, enable stay-awake while charging, disable lockscreen).
