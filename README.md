@@ -37,6 +37,7 @@ ReviveMyDroid includes automated presets matching the optimal configuration for 
 
 ## 🚀 Quick Start
 
+### Option A: Interactive CLI (Manual)
 1. **Clone this repository:**
    ```bash
    git clone https://github.com/hielmymuthohar/Revive_MyDroid.git
@@ -46,3 +47,42 @@ ReviveMyDroid includes automated presets matching the optimal configuration for 
 3. **Run the Interactive Tool:**
    - **Windows:** Double-click `run_windows.bat` (or run `python revive.py`).
    - **Linux / macOS:** `./run_unix.sh`
+
+---
+
+### Option B: Autonomous Setup via AI Agent (Zero-Effort 🤖)
+
+Don't want to type commands or navigate menus yourself? You can command an **AI Coding Agent** (e.g. Antigravity, Claude Code, Cursor Agent, Windsurf) to execute the entire transformation autonomously from start to finish!
+
+#### What You Need to Do:
+1. Connect your old phone via USB with **USB Debugging** enabled.
+2. Check **"Always allow from this computer"** and tap **Allow** on your phone screen.
+3. Copy and paste one of the prompt templates below into your AI Agent chat:
+
+#### 📋 Prompt Template (Bahasa Indonesia):
+```text
+Tolong siapkan HP Android lama saya menjadi Android Auto Headunit menggunakan repository ini:
+https://github.com/hielmymuthohar/Revive_MyDroid
+
+HP saya sudah dicolok ke PC via kabel USB dengan USB Debugging aktif. Tolong lakukan langkah-langkah berikut secara otomatis sampai selesai:
+1. Periksa koneksi ADB ke perangkat (`adb devices`). Jika ADB belum terpasang di PC, unduh Android platform-tools terlebih dahulu.
+2. Deteksi merk/model HP saya dan jalankan debloater non-root untuk membersihkan bloatware yang membebani RAM.
+3. Terapkan system tweaks low-RAM (matikan animasi UI, aktifkan stay-awake saat charging, nonaktifkan lockscreen).
+4. Unduh APK Open Headunit rilis terbaru dan instal ke perangkat via ADB.
+5. Jalankan konfigurasi otomatis Open Headunit: atur Resolusi ke 720p (atau 480p jika RAM <= 1.5GB), Frame Rate ke 30 FPS, Video Codec ke Hardware H.264, dan berikan semua izin Android yang diperlukan.
+6. Laporkan status jika semua konfigurasi sudah selesai dan HP siap dipakai di mobil.
+```
+
+#### 📋 Prompt Template (English):
+```text
+Please transform my connected old Android device into a dedicated Android Auto Headunit using this repository:
+https://github.com/hielmymuthohar/Revive_MyDroid
+
+My phone is connected via USB with USB Debugging enabled. Please autonomously perform the entire setup end-to-end:
+1. Verify the ADB connection (`adb devices`). If ADB platform-tools are missing on this PC, fetch them locally.
+2. Detect the device brand/model and apply the safe non-root debloater profile to free up RAM.
+3. Apply headunit system tweaks (disable UI animations to 0.0x, enable stay-awake while charging, disable lockscreen).
+4. Download the latest Open Headunit APK release from GitHub and install it over ADB.
+5. Run the automated configuration: pre-grant permissions, set Resolution to 720p @ 30 FPS, select Hardware H.264 codec, and disable receiver audio sink.
+6. Notify me when setup is complete and the headunit is ready for daily driving.
+```
