@@ -19,6 +19,7 @@ Got an old 2GB RAM Android phone collecting dust in a drawer? Instead of letting
 - **⚡ Low-RAM Headunit Tweaks:** Automatically disables UI window/transition animations (`0.0x` or `0.5x`), enables **Stay Awake while charging** (AC/USB/Wireless), disables the lockscreen, and trims system caches.
 - **📱 Auto-Download & Install Open Headunit:** Fetches the latest `.apk` release directly from [`andreknieriem/open-headunit`](https://github.com/andreknieriem/open-headunit) via GitHub API and installs it over ADB.
 - **⚙️ Automated Headunit Optimizer (No Root):** Automatically wakes and unlocks the screen, grants necessary permissions (`pm grant` + overlay `appops`), sends automation intents, and navigates UI via ADB to set optimal **Resolution (720p/480p)**, **Frame Rate (30 FPS)**, **Hardware Codec (H.264)**, and **Audio Sink** routing for lag-free 2GB RAM performance.
+- **🚗 Advanced Car Dashboard Tweaks:** Auto-power on when ignition is turned on, dedicated Kiosk mode launcher, custom screen density (DPI) for larger driving buttons, native 720p display downscaling, anti-glare dark mode, and cabin thermal/battery sleep protection.
 - **📦 Zero External Dependencies:** Written purely in Python 3 Standard Library. No `pip install` required!
 
 ---
@@ -93,6 +94,21 @@ Before turning a phone into a dedicated car display, old user-installed apps (ga
 
 ---
 
+## 🚗 Advanced Car Headunit Tweaks (Menu Option [6])
+
+Take your dedicated headunit build to the next level with purpose-built vehicle integrations:
+
+| Tweak | Command / Tech | Real-World Benefit |
+| :--- | :--- | :--- |
+| **🔑 Auto-Power On on Charge** | `fastboot oem off-mode-charge 0` / Qualcomm props | Boots the phone automatically when your car's ignition sends 5V USB power — never hold the physical power button again! |
+| **🖥️ Dedicated Kiosk Mode** | `cmd package set-home-activity` + launcher freeze | Locks Open Headunit as the permanent default Home launcher. The phone never shows an Android desktop or wallpaper. |
+| **👁️ Large Dashboard Touch Targets** | `wm density 160` (Customizable) | Enlarges Google Maps, Spotify, and call buttons for safer, effortless fingertip reach while driving. |
+| **📉 Native 720p Display Downscaling** | `wm size 720x...` | Renders the entire Android OS at 720p instead of 1080p, reducing GPU memory bandwidth and keeping device cold under summer heat. |
+| **🌙 Anti-Glare Dark Mode** | `cmd uimode night yes` | High-contrast dark dashboard aesthetic that eliminates nighttime cabin glare and saves OLED power. |
+| **🛡️ Cabin Thermal & Battery Guard** | `settings put system screen_off_timeout 15000` | Screen stays awake indefinitely while driving (charging), but turns off in 15 seconds into deep sleep as soon as car engine shuts off. |
+
+---
+
 ## ⏪ How to Restore / Rollback Removed Apps & Settings
 
 Everything done by ReviveMyDroid is **100% reversible without factory resetting or flashing ROMs**.
@@ -103,12 +119,12 @@ Every debloat session automatically saves a timestamped JSON backup log in the `
 1. Connect your phone via USB and launch ReviveMyDroid (`python revive.py` or double-click `run_windows.bat`).
 2. From the Main Menu, select:
    ```text
-   [6] ⏪ Restore / Rollback Debloated Packages from Backup
+   [7] ⏪ Restore / Rollback Debloated Packages from Backup
    ```
 3. A list of all previous backup sessions will be displayed. Enter the number corresponding to your backup file.
 4. ReviveMyDroid will instantly restore all packages using Android's native `cmd package install-existing <pkg>` and `pm enable <pkg>` — **no internet connection or APK re-download needed!**
 
-### Reverting System Tweaks
-If you want to restore factory UI animations, normal lockscreen behavior, or disable stay-awake:
-1. Select **`[7] 🔄 Revert System Tweaks to Factory Defaults`** from the Main Menu.
-2. Window animations will be restored to `1.0x`, lockscreen re-enabled, and stay-awake charging disabled.
+### Reverting System Tweaks & Display Settings
+If you want to restore factory UI animations, normal lockscreen behavior, native panel resolution, or disable stay-awake:
+1. Select **`[8] 🔄 Revert System & Display Tweaks to Factory Defaults`** from the Main Menu.
+2. Window animations will be restored to `1.0x`, lockscreen re-enabled, screen timeout set to 60s, and display density/size reset to factory defaults.

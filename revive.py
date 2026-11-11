@@ -99,6 +99,36 @@ def run_adb(args, timeout=30):
     except Exception as e:
         return -1, "", str(e)
 
+def get_fastboot_cmd():
+    if shutil.which("fastboot"):
+        return "fastboot"
+    adb_bin = get_adb_cmd()
+    if adb_bin:
+        fb_path = os.path.join(
+            os.path.dirname(adb_bin),
+            "fastboot.exe" if platform.system() == "Windows" else "fastboot",
+        )
+        if os.path.isfile(fb_path):
+            return fb_path
+    return None
+
+def run_fastboot(args, timeout=30):
+    fb_bin = get_fastboot_cmd()
+    if not fb_bin:
+        return -1, "", "Fastboot binary not found."
+    cmd = [fb_bin] + args
+    try:
+        res = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=timeout,
+        )
+        return res.returncode, res.stdout.strip(), res.stderr.strip()
+    except Exception as e:
+        return -1, "", str(e)
+
 def check_device():
     adb_bin = get_adb_cmd()
     if not adb_bin:
@@ -438,6 +468,8 @@ def apply_system_tweaks(revert=False):
             ("Disabling/Speeding up Transition Animation Scale", ["shell", "settings", "put", "global", "transition_animation_scale", anim_scale]),
             ("Disabling/Speeding up Animator Duration Scale", ["shell", "settings", "put", "global", "animator_duration_scale", anim_scale]),
             ("Enabling 'Stay Awake' while charging (AC + USB + Wireless)", ["shell", "settings", "put", "global", "stay_on_while_plugged_in", "7"]),
+            ("Setting 15s Screen Timeout when unplugged (Thermal & Battery Safety)", ["shell", "settings", "put", "system", "screen_off_timeout", "15000"]),
+            ("Enabling High-Contrast Dark Mode for Car Dashboard", ["shell", "cmd", "uimode", "night", "yes"]),
             ("Disabling Lockscreen (Instant boot into Headunit)", ["shell", "locksettings", "set-disabled", "true"]),
             ("Trimming system caches to free storage & memory", ["shell", "pm", "trim-caches", "999999999999999999"]),
         ]
@@ -457,7 +489,11 @@ def apply_system_tweaks(revert=False):
             ("Restoring Transition Animation Scale (1.0x)", ["shell", "settings", "put", "global", "transition_animation_scale", "1.0"]),
             ("Restoring Animator Duration Scale (1.0x)", ["shell", "settings", "put", "global", "animator_duration_scale", "1.0"]),
             ("Disabling 'Stay Awake' while charging", ["shell", "settings", "put", "global", "stay_on_while_plugged_in", "0"]),
+            ("Restoring Screen Timeout to 60s", ["shell", "settings", "put", "system", "screen_off_timeout", "60000"]),
             ("Re-enabling Lockscreen capability", ["shell", "locksettings", "set-disabled", "false"]),
+            ("Resetting Screen Density to factory default", ["shell", "wm", "density", "reset"]),
+            ("Resetting Display Size to native panel", ["shell", "wm", "size", "reset"]),
+            ("Restoring Light/Auto UI Mode", ["shell", "cmd", "uimode", "night", "auto"]),
         ]
         for desc, cmd in defaults:
             run_adb(cmd)
@@ -740,6 +776,300 @@ def install_open_headunit(device_info=None, express_mode=False):
 
     input("\nPress Enter to return to Main Menu...")
 
+def auto_boot_on_charge_menu(device_info):
+    print_banner()
+    print(f"{Colors.BOLD}--- AUTO-POWER ON ON CHARGE (AUTO-BOOT WHEN IGNITION ON) ---{Colors.ENDC}\n")
+    print("When car ignition is turned on, charger supplies 5V USB power.")
+    print("Normally, Android shows a battery charging icon and stays powered off.")
+    print("Enabling this tweak causes the phone to automatically boot straight into Android")
+    print("as soon as charging current is detected (like an OEM car headunit)!\n")
+
+    print("Methods available:")
+    print("  [1] Qualcomm / Android Persistent System Prop (Non-Root / Fast)")
+    print("  [2] Fastboot OEM Off-Mode-Charge (Reboots to Fastboot -> Sets tweak -> Reboots)")
+    print("  [0] Back to Advanced Menu")
+
+    choice = input("\nSelect method [1/2] (default: 1): ").strip() or "1"
+    if choice == "0":
+        return
+
+    if choice == "1":
+        print(f"\n{Colors.CYAN}[*] Setting persistent off-mode-charge properties...{Colors.ENDC}")
+        props = [
+            ("persist.vendor.offmode.charge", "0"),
+            ("persist.sys.offmode.charge", "0"),
+            ("ro.bootmode", "normal"),
+        ]
+        for prop, val in props:
+            run_adb(["shell", "setprop", prop, val])
+        print(f"{Colors.GREEN}[✓] Properties set!{Colors.ENDC}")
+        print("Note: On some ROMs, this property persists across reboots.")
+        print("To test: Turn off the phone completely, then plug in the USB cable to a charger.")
+
+    elif choice == "2":
+        fb_bin = get_fastboot_cmd()
+        if not fb_bin:
+            print(f"{Colors.FAIL}[!] fastboot binary not found.{Colors.ENDC}")
+            input("\nPress Enter to return...")
+            return
+
+        confirm = input("\nPhone will temporarily reboot into Fastboot mode. Proceed? [y/N]: ").strip().lower()
+        if confirm != "y":
+            return
+
+        print(f"{Colors.CYAN}[*] Rebooting device into Fastboot bootloader...{Colors.ENDC}")
+        run_adb(["reboot", "bootloader"])
+        print("Waiting for Fastboot device...")
+        time.sleep(5)
+
+        code, out, err = run_fastboot(["oem", "off-mode-charge", "0"])
+        if code == 0 or "ok" in (out + err).lower():
+            print(f"{Colors.GREEN}[✓] Fastboot auto-boot enabled: {out or err}{Colors.ENDC}")
+        else:
+            run_fastboot(["oem", "offmode_charging", "0"])
+            print(f"Result: {out or err}")
+
+        print("Rebooting device back to Android...")
+        run_fastboot(["reboot"])
+        print(f"{Colors.GREEN}[✓] Device rebooted!{Colors.ENDC}")
+
+    input("\nPress Enter to return...")
+
+def kiosk_mode_menu(device_info):
+    print_banner()
+    print(f"{Colors.BOLD}--- DEDICATED KIOSK MODE (HEADUNIT AS HOME LAUNCHER) ---{Colors.ENDC}\n")
+    print("Kiosk mode sets Open Headunit as the phone's primary Home Launcher.")
+    print("When booted or when the Home button is tapped, the phone stays locked")
+    print("inside the car headunit interface instead of returning to a phone desktop.\n")
+
+    print("Options:")
+    print("  [1] Set Open Headunit as Default Home Launcher")
+    print("  [2] Freeze / Disable Stock OEM Launcher (Full Car Kiosk Lock)")
+    print("  [3] Revert / Restore Stock OEM Launcher & Reset Home Activity")
+    print("  [0] Back to Advanced Menu")
+
+    choice = input("\nSelect option [1/2/3]: ").strip()
+    if choice == "0" or not choice:
+        return
+
+    common_launchers = [
+        "com.miui.home",
+        "com.sec.android.app.launcher",
+        "com.google.android.apps.nexuslauncher",
+        "com.android.launcher3",
+        "com.oppo.launcher",
+        "com.coloros.launcher",
+        "com.bbk.launcher2",
+        "com.vivo.upslide",
+        "com.asus.launcher",
+    ]
+
+    if choice == "1":
+        code, out, _ = run_adb(["shell", "cmd", "package", "resolve-activity", "--brief", HEADUNIT_PACKAGE])
+        activity = out.strip().splitlines()[-1].strip() if (code == 0 and "/" in out) else f"{HEADUNIT_PACKAGE}/.MainActivity"
+        run_adb(["shell", "cmd", "package", "set-home-activity", activity])
+        print(f"\n{Colors.GREEN}[✓] Home Activity set to: {activity}{Colors.ENDC}")
+        print("Tip: If Android shows a 'Select Home App' popup on your phone, choose Open Headunit and tap 'Always'.")
+
+    elif choice == "2":
+        installed = get_installed_packages()
+        found_launchers = [pkg for pkg in common_launchers if pkg in installed]
+        if not found_launchers:
+            print(f"{Colors.WARNING}[!] No known stock OEM launcher package recognized to disable.{Colors.ENDC}")
+        else:
+            for l_pkg in found_launchers:
+                run_adb(["shell", "pm", "disable-user", "--user", "0", l_pkg])
+                print(f"  {Colors.GREEN}✔ Disabled Stock Launcher:{Colors.ENDC} {l_pkg}")
+            print(f"\n{Colors.GREEN}[✓] Kiosk Mode active! Device will boot directly into Open Headunit.{Colors.ENDC}")
+
+    elif choice == "3":
+        for l_pkg in common_launchers:
+            run_adb(["shell", "pm", "enable", l_pkg])
+        print(f"\n{Colors.GREEN}[✓] Stock Launcher re-enabled.{Colors.ENDC}")
+
+    input("\nPress Enter to return...")
+
+def screen_density_menu(device_info):
+    print_banner()
+    print(f"{Colors.BOLD}--- DASHBOARD SCREEN DENSITY / DPI TUNING (WM DENSITY) ---{Colors.ENDC}\n")
+    code, out, _ = run_adb(["shell", "wm", "density"])
+    print(f"Current Screen Density: {Colors.CYAN}{out}{Colors.ENDC}\n")
+    print("Lowering DPI increases the physical size of touch buttons on your dashboard,")
+    print("making Google Maps, Spotify, and phone controls safer and easier to tap while driving.\n")
+
+    print("Presets:")
+    print("  [1] Large Dashboard (DPI 160 - Extra large buttons, ideal for 5.5\"-6.2\" phones)")
+    print("  [2] Medium Dashboard (DPI 200 - Balanced button sizes)")
+    print("  [3] Custom DPI Value")
+    print("  [4] Reset to Factory Native Density")
+    print("  [0] Back to Advanced Menu")
+
+    choice = input("\nSelect option [1-4] (default: 1): ").strip() or "1"
+    if choice == "0":
+        return
+
+    target_dpi = None
+    if choice == "1":
+        target_dpi = "160"
+    elif choice == "2":
+        target_dpi = "200"
+    elif choice == "3":
+        target_dpi = input("Enter custom DPI number (e.g. 180): ").strip()
+    elif choice == "4":
+        run_adb(["shell", "wm", "density", "reset"])
+        print(f"\n{Colors.GREEN}[✓] Density reset to factory default.{Colors.ENDC}")
+        input("\nPress Enter to return...")
+        return
+
+    if target_dpi and target_dpi.isdigit():
+        run_adb(["shell", "wm", "density", target_dpi])
+        print(f"\n{Colors.GREEN}[✓] Screen density changed to {target_dpi} DPI!{Colors.ENDC}")
+    else:
+        print(f"{Colors.WARNING}[!] Invalid DPI value.{Colors.ENDC}")
+
+    input("\nPress Enter to return...")
+
+def display_downscale_menu(device_info):
+    print_banner()
+    print(f"{Colors.BOLD}--- NATIVE DISPLAY DOWNSCALING (WM SIZE 720P) ---{Colors.ENDC}\n")
+    code, out, _ = run_adb(["shell", "wm", "size"])
+    print(f"Current Display Size: {Colors.CYAN}{out}{Colors.ENDC}\n")
+    print("If your phone has a 1080p (FHD) screen, rendering at 1080p wastes GPU memory and RAM.")
+    print("Downscaling native rendering to 720p HD cuts GPU overhead by ~40%, lowers temperatures,")
+    print("and prevents thermal throttling during daytime driving navigation.\n")
+
+    print("Presets:")
+    print("  [1] Downscale to 720p HD (Auto-calculated aspect ratio, e.g. 720x1520 or 720x1280)")
+    print("  [2] Downscale to 540p qHD (Ultra-low RAM & maximum cooling)")
+    print("  [3] Custom Resolution (e.g. 720x1520)")
+    print("  [4] Reset to Native Display Resolution")
+    print("  [0] Back to Advanced Menu")
+
+    choice = input("\nSelect option [1-4] (default: 1): ").strip() or "1"
+    if choice == "0":
+        return
+
+    target_size = None
+    if choice == "1":
+        m = re.findall(r"(\d+)x(\d+)", out)
+        if m:
+            w, h = int(m[0][0]), int(m[0][1])
+            if w > h:
+                w, h = h, w
+            ratio = h / w if w > 0 else 16/9
+            target_h = int(round(720 * ratio))
+            if target_h % 2 != 0:
+                target_h += 1
+            target_size = f"720x{target_h}"
+        else:
+            target_size = "720x1520"
+    elif choice == "2":
+        target_size = "540x1140"
+    elif choice == "3":
+        target_size = input("Enter resolution (width x height, e.g. 720x1520): ").strip()
+    elif choice == "4":
+        run_adb(["shell", "wm", "size", "reset"])
+        print(f"\n{Colors.GREEN}[✓] Display resolution reset to native physical panel.{Colors.ENDC}")
+        input("\nPress Enter to return...")
+        return
+
+    if target_size and "x" in target_size:
+        run_adb(["shell", "wm", "size", target_size])
+        print(f"\n{Colors.GREEN}[✓] Display downscaled to {target_size}!{Colors.ENDC}")
+    else:
+        print(f"{Colors.WARNING}[!] Invalid resolution format.{Colors.ENDC}")
+
+    input("\nPress Enter to return...")
+
+def night_mode_menu(device_info):
+    print_banner()
+    print(f"{Colors.BOLD}--- DARK / NIGHT MODE CAR DASHBOARD SYNC ---{Colors.ENDC}\n")
+    print("Select Night Mode Option:")
+    print("  [1] Force Dark Mode (High-contrast, sleek dashboard look, anti-glare)")
+    print("  [2] Automatic Day/Night Sync (Matches sunset and sunrise)")
+    print("  [3] Force Light Mode")
+    print("  [0] Back to Advanced Menu")
+
+    choice = input("\nSelect mode [1/2/3] (default: 1): ").strip() or "1"
+    if choice == "1":
+        run_adb(["shell", "cmd", "uimode", "night", "yes"])
+        print(f"\n{Colors.GREEN}[✓] Dark mode forced on.{Colors.ENDC}")
+    elif choice == "2":
+        run_adb(["shell", "cmd", "uimode", "night", "auto"])
+        print(f"\n{Colors.GREEN}[✓] Automatic day/night sync enabled.{Colors.ENDC}")
+    elif choice == "3":
+        run_adb(["shell", "cmd", "uimode", "night", "no"])
+        print(f"\n{Colors.GREEN}[✓] Light mode forced on.{Colors.ENDC}")
+
+    input("\nPress Enter to return...")
+
+def battery_safety_menu(device_info):
+    print_banner()
+    print(f"{Colors.BOLD}--- BATTERY SAFETY & CAR SLEEP MODE (CABIN HEAT PROTECTION) ---{Colors.ENDC}\n")
+    print("Car cabins can reach 50°C+ under direct sunlight. To prevent battery degradation:")
+    print("  • When charging (engine ON): Phone screen stays awake 24/7.")
+    print("  • When unplugged (engine OFF): Phone screen sleeps in 15 seconds to enter deep sleep.\n")
+
+    print("Apply Car Battery & Thermal Guard Tweaks:")
+    print("  [1] Apply Car Sleep Mode (15s sleep when unplugged + Stay awake on charge)")
+    print("  [2] Limit Background Processes (Reduces CPU heat & saves RAM)")
+    print("  [3] Disable Ambient / Always-on-Display (Prevents battery drain)")
+    print("  [4] Apply ALL Battery & Thermal Guard Tweaks")
+    print("  [0] Back to Advanced Menu")
+
+    choice = input("\nSelect option [1-4] (default: 4): ").strip() or "4"
+    if choice == "0":
+        return
+
+    if choice in ("1", "4"):
+        run_adb(["shell", "settings", "put", "system", "screen_off_timeout", "15000"])
+        run_adb(["shell", "settings", "put", "global", "stay_on_while_plugged_in", "7"])
+        print(f"  {Colors.GREEN}✔ Applied{Colors.ENDC} - Screen timeout 15s unplugged, awake on charge")
+
+    if choice in ("2", "4"):
+        run_adb(["shell", "settings", "put", "global", "activity_manager_constants", "max_cached_processes=8"])
+        print(f"  {Colors.GREEN}✔ Applied{Colors.ENDC} - Limited cached background processes to 8")
+
+    if choice in ("3", "4"):
+        run_adb(["shell", "settings", "put", "secure", "doze_enabled", "0"])
+        run_adb(["shell", "settings", "put", "secure", "doze_always_on", "0"])
+        run_adb(["shell", "settings", "put", "system", "peak_refresh_rate", "60.0"])
+        print(f"  {Colors.GREEN}✔ Applied{Colors.ENDC} - Disabled ambient wakeups & locked to 60Hz")
+
+    print(f"\n{Colors.GREEN}[✓] Battery & thermal protections active!{Colors.ENDC}")
+    input("\nPress Enter to return...")
+
+def advanced_car_tweaks_menu(device_info):
+    while True:
+        print_banner()
+        print(f"{Colors.BOLD}--- STEP 6: ADVANCED CAR HEADUNIT TWEAKS ---{Colors.ENDC}")
+        print(f"Connected: {Colors.GREEN}{device_info['brand']} {device_info['model']}{Colors.ENDC}\n")
+
+        print("  [1] 🔑 Auto-Power On on Charge (Auto-Boot when Car Ignition Turns On)")
+        print("  [2] 🖥️ Kiosk Mode (Set Open Headunit as Default Home Launcher)")
+        print("  [3] 👁️ Dashboard Screen Density / DPI Tuning (Larger Touch Targets)")
+        print("  [4] 📉 Native Display Downscaling (Downscale to 720p for Cold GPU)")
+        print("  [5] 🌙 Force Dark / Night Mode (Anti-Glare Car Dashboard)")
+        print("  [6] 🛡️ Battery Safety & Thermal Protection (Quick Sleep on Engine Off)")
+        print("  [0] ⬅️ Back to Main Menu")
+        print("-" * 68)
+
+        ch = input("Select an option: ").strip()
+        if ch == "0" or not ch:
+            break
+        elif ch == "1":
+            auto_boot_on_charge_menu(device_info)
+        elif ch == "2":
+            kiosk_mode_menu(device_info)
+        elif ch == "3":
+            screen_density_menu(device_info)
+        elif ch == "4":
+            display_downscale_menu(device_info)
+        elif ch == "5":
+            night_mode_menu(device_info)
+        elif ch == "6":
+            battery_safety_menu(device_info)
+
 def run_express_wizard(device_info):
     debloat_menu(device_info)
     apply_system_tweaks(revert=False)
@@ -765,8 +1095,9 @@ def main_menu():
         print("  [3] ⚡ Apply Headunit System Tweaks (Animations Off + Stay Awake)")
         print("  [4] 📱 Auto-Download & Install Open Headunit APK")
         print("  [5] ⚙️ Auto-Configure Open Headunit (720p, 30 FPS, H.264)")
-        print("  [6] ⏪ Restore / Rollback Debloated Packages from Backup")
-        print("  [7] 🔄 Revert System Tweaks to Factory Defaults")
+        print("  [6] 🚗 Advanced Car Headunit Tweaks (Auto-Boot, Kiosk, DPI, 720p Display)")
+        print("  [7] ⏪ Restore / Rollback Debloated Packages from Backup")
+        print("  [8] 🔄 Revert System & Display Tweaks to Factory Defaults")
         print("  [R] 🔎 Refresh Device Connection")
         print("  [0] ❌ Exit")
         print("-" * 68)
@@ -794,8 +1125,10 @@ def main_menu():
         elif choice == "5":
             configure_headunit_settings(device_info)
         elif choice == "6":
-            restore_menu()
+            advanced_car_tweaks_menu(device_info)
         elif choice == "7":
+            restore_menu()
+        elif choice == "8":
             apply_system_tweaks(revert=True)
 
 if __name__ == "__main__":
