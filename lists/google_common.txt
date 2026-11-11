@@ -1,0 +1,60 @@
+# =====================================================================
+# Universal Google & Android Bloatware (Safe to remove for Headunit)
+# Note: Google Play Services (com.google.android.gms) is KEPT intact.
+# =====================================================================
+
+# Entertainment & Media
+com.google.android.youtube
+com.google.android.videos
+com.google.android.music
+com.google.android.apps.youtube.music
+com.google.android.apps.podcasts
+com.google.android.play.games
+com.google.android.apps.books
+com.google.android.apps.magazines
+
+# Productivity & Office (Not needed on a dedicated Car Display)
+com.google.android.gm
+com.google.android.apps.docs
+com.google.android.apps.docs.editors.docs
+com.google.android.apps.docs.editors.sheets
+com.google.android.apps.docs.editors.slides
+com.google.android.keep
+com.google.android.calendar
+com.google.android.apps.photos
+com.google.android.apps.tachyon
+com.google.android.talk
+
+# System & Telemetry Bloat
+com.google.android.apps.wellbeing
+com.google.android.marvin.talkback
+com.google.android.feedback
+com.google.android.printservice.recommendation
+com.google.android.apps.restore
+com.google.android.apps.turbopower
+com.google.android.googlequicksearchbox
+com.android.chrome
+com.android.bips
+com.android.bookmarkprovider
+com.android.calllogbackup
+com.android.dreams.basic
+com.android.dreams.phototable
+com.android.egg
+com.android.printspooler
+com.android.stk
+com.android.wallpaper.livepicker
+
+# Common Pre-installed Third-Party Social/Bloat
+com.facebook.katana
+com.facebook.system
+com.facebook.appmanager
+com.facebook.services
+com.netflix.mediaclient
+com.netflix.partner.activation
+com.spotify.music
+com.microsoft.office.word
+com.microsoft.office.excel
+com.microsoft.office.powerpoint
+com.microsoft.office.onenote
+com.microsoft.skydrive
+com.linkedin.android

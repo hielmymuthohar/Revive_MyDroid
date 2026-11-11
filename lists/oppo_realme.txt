@@ -1,0 +1,35 @@
+# =====================================================================
+# Oppo (ColorOS) & Realme (RealmeUI) Bloatware List
+# =====================================================================
+
+com.heytap.browser
+com.heytap.cloud
+com.heytap.market
+com.heytap.music
+com.heytap.pictorial
+com.heytap.themestore
+com.heytap.usercenter
+com.coloros.compass2
+com.coloros.calculator
+com.coloros.childrenspace
+com.coloros.focusmode
+com.coloros.gamespace
+com.coloros.gamespaceui
+com.coloros.healthcheck
+com.coloros.musiclink
+com.coloros.onekeylockscreen
+com.coloros.oppomultiapp
+com.coloros.phonenoareainquire
+com.coloros.scenemode
+com.coloros.SecurePay
+com.coloros.smartdrive
+com.coloros.soundrecorder
+com.coloros.video
+com.coloros.weather.service
+com.nearme.atlas
+com.nearme.browser
+com.nearme.gamecenter
+com.nearme.statistics.rom
+com.oppo.market
+com.oppo.music
+com.oppo.operationManual

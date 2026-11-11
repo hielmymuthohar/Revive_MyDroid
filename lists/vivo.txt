@@ -1,0 +1,39 @@
+# =====================================================================
+# Vivo / iQOO (FuntouchOS / OriginOS) Bloatware List
+# =====================================================================
+
+com.vivo.browser
+com.vivo.appstore
+com.vivo.carmode
+com.vivo.compass
+com.vivo.email
+com.vivo.ewarranty
+com.vivo.favorite
+com.vivo.floatingball
+com.vivo.FMRadio
+com.vivo.game
+com.vivo.globalsearch
+com.vivo.hiboard
+com.vivo.LiveWallpaperBatch
+com.vivo.magazine
+com.vivo.mediatune
+com.vivo.motormode
+com.vivo.numbermark
+com.vivo.scanner
+com.vivo.smartshot
+com.vivo.Tips
+com.vivo.translator
+com.vivo.unionpay
+com.vivo.video.floating
+com.vivo.videoeditor
+com.vivo.weather
+com.vivo.weather.provider
+com.vivo.website
+com.vivo.widget.calendar
+com.bbk.account
+com.bbk.cloud
+com.bbk.iqoo.logsystem
+com.bbk.photoframewidget
+com.bbk.scene.indoor
+com.bbk.SuperPowerSave
+com.bbk.theme

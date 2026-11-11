@@ -1,0 +1,33 @@
+# =====================================================================
+# Xiaomi / Redmi / POCO (MIUI & HyperOS) Bloatware List
+# =====================================================================
+
+# Ads, Analytics & Telemetry (MSA)
+com.miui.analytics
+com.miui.msa.global
+com.miui.systemAdSolution
+com.miui.bugreport
+com.miui.HybridAccessory
+com.miui.hybrid
+com.xiaomi.joyose
+
+# MIUI Built-in Apps
+com.mi.globalbrowser
+com.miui.player
+com.miui.videoplayer
+com.miui.notes
+com.miui.compass
+com.miui.calculator
+com.miui.CleanMaster
+com.miui.cloudbackup
+com.miui.cloudservice
+com.miui.micloudsync
+com.miui.yellowpage
+com.miui.fm
+com.xiaomi.midrop
+com.xiaomi.mipicks
+com.xiaomi.scanner
+com.xiaomi.payment
+com.mipay.wallet.id
+com.mipay.wallet.in
+cn.wps.xiaomi.abroad.lite

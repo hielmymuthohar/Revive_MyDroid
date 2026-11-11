@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# User Backups, Downloaded APKs & Local ADB binaries
+backups/
+downloads/
+platform-tools/
+
+# OS files
+.DS_Store
+Thumbs.db

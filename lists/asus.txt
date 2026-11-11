@@ -1,0 +1,31 @@
+# =====================================================================
+# Asus (ZenUI) Bloatware List
+# =====================================================================
+
+com.asus.browser
+com.asus.calculator
+com.asus.collage
+com.asus.contacts
+com.asus.ephotoburst
+com.asus.filemanager
+com.asus.fmradio
+com.asus.gamewidget
+com.asus.ia.asusapp
+com.asus.kidslauncher
+com.asus.laserpointer
+com.asus.livedemo
+com.asus.loguploader
+com.asus.microfilm
+com.asus.minigame
+com.asus.mobilemanager
+com.asus.music
+com.asus.myasus
+com.asus.playto
+com.asus.quickmemo
+com.asus.selfiemaster
+com.asus.soundrecorder
+com.asus.task
+com.asus.themeapp
+com.asus.userfeedback
+com.asus.weathertime
+com.asus.zentalk

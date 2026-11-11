@@ -1,0 +1,2 @@
+# ReviveMyDroid uses 100% Python 3 Standard Library modules!
+# No external pip packages are required to run revive.py.

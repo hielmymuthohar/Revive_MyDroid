@@ -1,0 +1,39 @@
+# =====================================================================
+# Samsung (TouchWiz / OneUI) Bloatware List
+# =====================================================================
+
+# Bixby & AI Assistants
+com.samsung.android.bixby.agent
+com.samsung.android.bixby.AgentDummy
+com.samsung.android.bixby.es.globalaction
+com.samsung.android.bixby.plmsync
+com.samsung.android.bixby.service
+com.samsung.android.bixby.voiceinput
+com.samsung.android.bixby.wakeup
+com.samsung.android.app.spage
+com.samsung.android.visionintelligence
+
+# Samsung Apps & Services
+com.sec.android.app.sbrowser
+com.samsung.android.email.provider
+com.samsung.android.voc
+com.samsung.android.oneconnect
+com.samsung.android.scloud
+com.samsung.android.spay
+com.samsung.android.spayfw
+com.samsung.android.aremoji
+com.samsung.android.arzone
+com.samsung.android.game.gamehome
+com.samsung.android.game.gametools
+com.samsung.android.game.gos
+com.samsung.android.app.tips
+com.samsung.android.kidsinstaller
+com.samsung.android.mateagent
+com.sec.android.app.shealth
+com.sec.android.app.samsungapps
+com.sec.android.easyMover
+
+# Knox & Enterprise (Safe to disable on personal headunit)
+com.samsung.android.knox.analytics.uploader
+com.sec.enterprise.knox.cloudmdm.smdms
+com.samsung.klmsagent
