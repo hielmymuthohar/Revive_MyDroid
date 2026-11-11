@@ -55,26 +55,7 @@ ReviveMyDroid includes automated presets matching the optimal configuration for 
 
 Don't want to type commands or navigate menus yourself? You can command an **AI Coding Agent** (e.g. Antigravity, Claude Code, Cursor Agent, Windsurf) to execute the entire transformation autonomously from start to finish!
 
-#### What You Need to Do:
-1. Connect your old phone via USB with **USB Debugging** enabled.
-2. Check **"Always allow from this computer"** and tap **Allow** on your phone screen.
-3. Copy and paste one of the prompt templates below into your AI Agent chat:
-
-#### 📋 Prompt Template (Bahasa Indonesia):
-```text
-Tolong siapkan HP Android lama saya menjadi Android Auto Headunit menggunakan repository ini:
-https://github.com/hielmymuthohar/Revive_MyDroid
-
-HP saya sudah dicolok ke PC via kabel USB dengan USB Debugging aktif. Tolong lakukan langkah-langkah berikut secara otomatis sampai selesai:
-1. Periksa koneksi ADB ke perangkat (`adb devices`). Jika ADB belum terpasang di PC, unduh Android platform-tools terlebih dahulu.
-2. Deteksi merk/model HP saya dan jalankan debloater non-root untuk membersihkan bloatware yang membebani RAM.
-3. Terapkan system tweaks low-RAM (matikan animasi UI, aktifkan stay-awake saat charging, nonaktifkan lockscreen).
-4. Unduh APK Open Headunit rilis terbaru dan instal ke perangkat via ADB.
-5. Jalankan konfigurasi otomatis Open Headunit: atur Resolusi ke 720p (atau 480p jika RAM <= 1.5GB), Frame Rate ke 30 FPS, Video Codec ke Hardware H.264, dan berikan semua izin Android yang diperlukan.
-6. Laporkan status jika semua konfigurasi sudah selesai dan HP siap dipakai di mobil.
-```
-
-#### 📋 Prompt Template (English):
+#### 📋 Prompt Template:
 ```text
 Please transform my connected old Android device into a dedicated Android Auto Headunit using this repository:
 https://github.com/hielmymuthohar/Revive_MyDroid
@@ -87,3 +68,47 @@ My phone is connected via USB with USB Debugging enabled. Please autonomously pe
 5. Run the automated configuration: pre-grant permissions, set Resolution to 720p @ 30 FPS, select Hardware H.264 codec, and disable receiver audio sink.
 6. Notify me when setup is complete and the headunit is ready for daily driving.
 ```
+
+---
+
+## 🧹 Debloat Rules & User Apps Cleaner
+
+ReviveMyDroid features a two-tiered cleaning engine designed to strip away non-essential background services and free maximum RAM for smooth display decoding:
+
+### 1. OEM & System Bloatware Profiles
+Curated package lists target heavy vendor services and background telemetry without breaking core Android functionality:
+- **Google Common Bloat:** YouTube, Chrome, Google Search, Docs, Wellbeing, Talkback, Print Spooler, etc.
+- **Samsung (OneUI / TouchWiz):** Bixby, Samsung Pay, AR Zone, Game Launcher, Dex, Samsung Cloud, etc.
+- **Xiaomi (MIUI / HyperOS):** Mi Browser, Mi Video, Mi Pay, Analytics (`msa`), Joyose, Yellow Pages, Mi Cloud, etc.
+- **Oppo / Realme (ColorOS / RealmeUI):** HeyTap, Theme Store, Game Space, Roaming, Browser, etc.
+- **Vivo (FuntouchOS / OriginOS):** V-Appstore, iManager, Vivo Cloud, Jovi, Game Center, etc.
+- **Asus (ZenUI):** Asus Support, ZenUI Services, Mobile Manager, etc.
+
+### 2. User-Installed (3rd-Party) Apps Cleaner
+Before turning a phone into a dedicated car display, old user-installed apps (games, social media, shopping apps) often silently run background sync services.
+- **Automatic Detection:** Scans all non-system user packages (`pm list packages -3`).
+- **Core Protection:** Essential headunit packages (like `com.andrerinas.headunitrevived`) are automatically whitelisted and protected.
+- **Flexible Removal:** Choose `A` to strip all 3rd-party apps in one click for a clean slate, or pick specific apps by number (e.g. `1,3,5`).
+- **Non-Root Reversible Modes:** Choose between `disable-user` (freeze app) or `uninstall --user 0` (removes app and cache while retaining system image).
+
+---
+
+## ⏪ How to Restore / Rollback Removed Apps & Settings
+
+Everything done by ReviveMyDroid is **100% reversible without factory resetting or flashing ROMs**.
+
+### Restoring Removed Apps (Bloatware & 3rd-Party)
+Every debloat session automatically saves a timestamped JSON backup log in the `backups/` directory (e.g. `rollback_Redmi_8A_Pro_20261111_233510.json`).
+
+1. Connect your phone via USB and launch ReviveMyDroid (`python revive.py` or double-click `run_windows.bat`).
+2. From the Main Menu, select:
+   ```text
+   [6] ⏪ Restore / Rollback Debloated Packages from Backup
+   ```
+3. A list of all previous backup sessions will be displayed. Enter the number corresponding to your backup file.
+4. ReviveMyDroid will instantly restore all packages using Android's native `cmd package install-existing <pkg>` and `pm enable <pkg>` — **no internet connection or APK re-download needed!**
+
+### Reverting System Tweaks
+If you want to restore factory UI animations, normal lockscreen behavior, or disable stay-awake:
+1. Select **`[7] 🔄 Revert System Tweaks to Factory Defaults`** from the Main Menu.
+2. Window animations will be restored to `1.0x`, lockscreen re-enabled, and stay-awake charging disabled.
