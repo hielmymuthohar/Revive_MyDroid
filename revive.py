@@ -72,13 +72,14 @@ def print_banner():
 def get_adb_cmd():
     if shutil.which("adb"):
         return "adb"
-    local_adb = os.path.join(
-        BASE_DIR,
-        "platform-tools",
-        "adb.exe" if platform.system() == "Windows" else "adb",
-    )
-    if os.path.isfile(local_adb):
-        return local_adb
+    candidates = [
+        os.path.join(BASE_DIR, "platform-tools", "adb.exe" if platform.system() == "Windows" else "adb"),
+        os.path.join(os.path.expanduser("~"), "platform-tools", "adb.exe" if platform.system() == "Windows" else "adb"),
+        os.path.join(os.path.expanduser("~"), "AppData", "Local", "Android", "Sdk", "platform-tools", "adb.exe"),
+    ]
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
     return None
 
 def run_adb(args, timeout=30):
