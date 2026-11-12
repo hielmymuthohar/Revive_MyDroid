@@ -147,3 +147,30 @@ Every debloat session automatically saves a timestamped JSON backup log in the `
 If you want to restore factory UI animations, normal lockscreen behavior, native panel resolution, or disable stay-awake:
 1. Select **`[8] 🔄 Revert System & Display Tweaks to Factory Defaults`** from the Main Menu.
 2. Window animations will be restored to `1.0x`, lockscreen re-enabled, screen timeout set to 60s, and display density/size reset to factory defaults.
+
+---
+
+## 📡 Wireless Android Auto Connection Guide (Native Mode)
+
+Once your headunit device is set up with ReviveMyDroid, connecting your daily driving phone wirelessly via **Native Mode (Wi-Fi Direct)** is simple, automatic, and works universally across all smartphone brands (Samsung, Xiaomi, Vivo, Oppo, Google Pixel, etc.).
+
+### Phase 1: Pair Bluetooth (One-Time Setup)
+1. Turn **ON** both **Bluetooth** and **Wi-Fi** on both smartphones (**Primary Phone** and **Headunit Phone**).
+2. On your **Primary Phone**, search for the **Headunit Phone** in Bluetooth settings and complete the pairing process.
+3. On the **Headunit Phone**, open **Open Headunit**:
+   - Go to **Settings** $\to$ **Wireless Connection**.
+   - Under **"Bluetooth your phone pairs with"**, select the Bluetooth name of your **Primary Phone**.
+
+### Phase 2: Start Android Auto Projection (Automatic Daily Driving)
+1. Open **Open Headunit** on the Headunit Phone (keep it on the main waiting screen).
+2. Ensure your **Primary Phone** connects to the Headunit Phone via Bluetooth.
+3. **Accept Connection Dialog (First Time Only):**
+   - The Primary Phone will automatically display an Android Auto / Wi-Fi Direct invitation pop-up.
+   - Tap **Connect / Accept**.
+4. **Enjoy Wireless Android Auto:** Data traffic automatically switches to high-speed Wi-Fi Direct, and Android Auto will project instantly onto your headunit screen!
+
+### 💡 Pro-Tips for Lag-Free & Stable Wireless Connection:
+- **Disable "Wi-Fi Assistant" / "Smart Network Switching" on Primary Phone:** Local headunit Wi-Fi has no internet access; disabling smart network switching prevents your phone from aggressively dropping Wi-Fi to use cellular data.
+- **Disable Background Wi-Fi & Bluetooth Scanning on Both Phones:** In **Settings $\to$ Location $\to$ Wi-Fi & Bluetooth scanning**, toggle both **OFF** to eliminate 20-second channel hops and video stutter.
+- **Select "Stay Connected":** If your primary phone displays *"This network has no internet access. Stay connected?"*, select **Yes / Always stay connected** and check *"Don't ask again"*.
+
