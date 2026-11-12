@@ -7,7 +7,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
 [![ADB](https://img.shields.io/badge/Requires-ADB%20(No%20Root)-orange.svg)]()
 
-Got an old 2GB RAM Android phone collecting dust in a drawer? Instead of letting it become e-waste, **ReviveMyDroid** strips away heavy manufacturer bloatware, optimizes system animations and power states via ADB, and transforms the device into a fast **Android Auto Wireless/USB Display Receiver** powered by [auto-android](https://github.com/hielmymuthohar/auto-android) (Custom Turnkey Low-RAM Edition of Open Headunit).
+Got an old 2GB RAM Android phone collecting dust in a drawer? Instead of letting it become e-waste, **ReviveMyDroid** strips away heavy manufacturer bloatware, optimizes system animations and power states via ADB, and transforms the device into a fast **Android Auto Wireless/USB Display Receiver** powered by [Open Headunit](https://github.com/andreknieriem/open-headunit).
 
 ---
 
@@ -17,7 +17,7 @@ Got an old 2GB RAM Android phone collecting dust in a drawer? Instead of letting
 - **🗑️ 3rd-Party & User Apps Cleaner:** Scan and remove any remaining user-installed apps (social media, games, shopping apps) with 1-click batch removal (`[A]`) or selective numbers, complete with timestamped rollback backups.
 - **🛡️ Safe & Reversible (Automatic Rollback):** Choose between `disable-user` or `uninstall --user 0`. Every session saves a timestamped JSON rollback log inside `backups/` so you can restore removed apps anytime with a single click.
 - **⚡ Low-RAM Headunit Tweaks:** Automatically disables UI window/transition animations (`0.0x` or `0.5x`), enables **Stay Awake while charging** (AC/USB/Wireless), disables the lockscreen, and trims system caches.
-- **📱 Auto-Download & Install Turnkey Headunit:** Fetches the pre-configured `.apk` release directly from [`hielmymuthohar/auto-android`](https://github.com/hielmymuthohar/auto-android) via GitHub API (with fallback to upstream [`andreknieriem/open-headunit`](https://github.com/andreknieriem/open-headunit)) and installs it over ADB. Bypasses onboarding wizards and disclaimer popups out of the box!
+- **📱 Auto-Download & Install Open Headunit:** Fetches the latest `.apk` release directly from [`andreknieriem/open-headunit`](https://github.com/andreknieriem/open-headunit) via GitHub API and installs it over ADB.
 - **⚙️ Automated Headunit Optimizer (No Root):** Automatically wakes and unlocks the screen, grants necessary permissions (`pm grant` + overlay `appops`), sends automation intents, and navigates UI via ADB to set optimal **Resolution (720p/480p)**, **Frame Rate (30 FPS)**, **Hardware Codec (H.264)**, and **Audio Sink** routing for lag-free 2GB RAM performance.
 - **🚗 Advanced Car Dashboard Tweaks:** Auto-power on when ignition is turned on, dedicated Kiosk mode launcher, custom screen density (DPI) for larger driving buttons, native 720p display downscaling, anti-glare dark mode, and cabin thermal/battery sleep protection.
 - **📦 Zero External Dependencies:** Written purely in Python 3 Standard Library. No `pip install` required!

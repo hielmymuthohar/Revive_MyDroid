@@ -34,8 +34,7 @@ LISTS_DIR = os.path.join(BASE_DIR, "lists")
 BACKUPS_DIR = os.path.join(BASE_DIR, "backups")
 DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
 
-OPEN_HEADUNIT_API = "https://api.github.com/repos/hielmymuthohar/auto-android/releases/latest"
-OPEN_HEADUNIT_UPSTREAM_API = "https://api.github.com/repos/andreknieriem/open-headunit/releases/latest"
+OPEN_HEADUNIT_API = "https://api.github.com/repos/andreknieriem/open-headunit/releases/latest"
 HEADUNIT_PACKAGE = "com.andrerinas.headunitrevived"
 HEADUNIT_PERMISSIONS = [
     "android.permission.RECORD_AUDIO",
@@ -701,47 +700,32 @@ def configure_headunit_settings(device_info=None, express_mode=False):
 def install_open_headunit(device_info=None, express_mode=False):
     print_banner()
     print(f"{Colors.BOLD}--- STEP 4: AUTO-DOWNLOAD & INSTALL OPEN HEADUNIT ---{Colors.ENDC}")
-    print("Source: https://github.com/hielmymuthohar/auto-android (Custom Low-RAM Edition)\n")
+    print("Source: https://github.com/andreknieriem/open-headunit\n")
 
     os.makedirs(DOWNLOADS_DIR, exist_ok=True)
     apk_path = None
 
     print(f"{Colors.CYAN}[*] Fetching latest release metadata from GitHub API...{Colors.ENDC}")
-    release_data = None
-    target_api = OPEN_HEADUNIT_API
-    for api_url in [OPEN_HEADUNIT_API, OPEN_HEADUNIT_UPSTREAM_API]:
-        try:
-            req = urllib.request.Request(
-                api_url,
-                headers={"User-Agent": "ReviveMyDroid-Headunit-Installer/1.0"},
-            )
-            with urllib.request.urlopen(req, timeout=12) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-                assets = data.get("assets", [])
-                if any(a.get("name", "").endswith(".apk") for a in assets):
-                    release_data = data
-                    target_api = api_url
-                    break
-        except Exception:
-            continue
-
     try:
-        if not release_data:
-            raise RuntimeError("No release with .apk asset found on GitHub.")
+        req = urllib.request.Request(
+            OPEN_HEADUNIT_API,
+            headers={"User-Agent": "ReviveMyDroid-Headunit-Installer/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            release_data = json.loads(resp.read().decode("utf-8"))
 
         tag_name = release_data.get("tag_name", "latest")
         assets = release_data.get("assets", [])
         apk_asset = next((a for a in assets if a.get("name", "").endswith(".apk")), None)
 
         if not apk_asset:
-            raise RuntimeError("No .apk asset found in the GitHub release.")
+            raise RuntimeError("No .apk asset found in the latest GitHub release.")
 
         apk_name = apk_asset["name"]
         download_url = apk_asset["browser_download_url"]
         apk_path = os.path.join(DOWNLOADS_DIR, apk_name)
 
-        source_label = "Auto-Android Custom Fork" if target_api == OPEN_HEADUNIT_API else "Upstream Open Headunit"
-        print(f"Found Release ({source_label}): {Colors.GREEN}{tag_name} ({apk_name}){Colors.ENDC}")
+        print(f"Found Release: {Colors.GREEN}{tag_name} ({apk_name}){Colors.ENDC}")
         print(f"Downloading from: {download_url}...")
 
         def report_hook(block_num, block_size, total_size):
